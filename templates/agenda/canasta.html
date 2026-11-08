@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% block title %}Mi Canasta de Exámenes | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h1 class="h3 fw-bold mb-1"><i class="bi bi-basket3 text-rs me-2"></i>Canasta de exámenes</h1>
+  <p class="text-muted small">Selección temporal guardada en tu sesión: no se registra en la base de datos hasta que confirmes.</p>
+</div>
+
+{% if not lineas %}
+<div class="card border-0 shadow-sm rounded-4 text-center py-5 bg-white">
+  <div class="card-body py-5">
+    <i class="bi bi-basket text-muted display-1 mb-3"></i>
+    <h3 class="fw-bold text-secondary">Tu canasta está vacía</h3>
+    <p class="text-muted mb-4">Aún no has agregado prestaciones.</p>
+    <a href="{% url 'catalogo:lista' %}" class="btn btn-rs px-4 py-2 fw-bold"><i class="bi bi-grid-3x3-gap me-2"></i>Explorar prestaciones</a>
+  </div>
+</div>
+{% else %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3 bg-white">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr><th>Prestación</th><th>Arancel</th><th class="text-center" style="width:170px">Cantidad</th><th class="text-end">Subtotal</th><th style="width:60px"></th></tr>
+          </thead>
+          <tbody>
+            {% for l in lineas %}
+            <tr>
+              <td>
+                <a href="{{ l.prestacion.get_absolute_url }}" class="fw-bold text-dark text-decoration-none">{{ l.prestacion.nombre }}</a>
+                <small class="text-muted d-block">{{ l.prestacion.especialidad.nombre }} · {{ l.prestacion.codigo }}</small>
+                {% if not l.prestacion.disponible %}<span class="badge text-bg-danger">Ya no disponible</span>{% endif %}
+              </td>
+              <td class="text-muted">{{ l.prestacion.arancel_formateado }}</td>
+              <td>
+                <form method="post" action="{% url 'agenda:actualizar' l.prestacion.pk %}" class="d-flex gap-1">
+                  {% csrf_token %}
+                  <input type="number" name="cantidad" value="{{ l.cantidad }}" min="1" max="{{ l.maximo }}" class="form-control form-control-sm" aria-label="Cantidad">
+                  <button class="btn btn-outline-primary btn-sm" type="submit" title="Actualizar"><i class="bi bi-check2"></i></button>
+                </form>
+              </td>
+              <td class="text-end fw-bold">${{ l.total }}</td>
+              <td class="text-end">
+                <form method="post" action="{% url 'agenda:quitar' l.prestacion.pk %}">
+                  {% csrf_token %}
+                  <button class="btn btn-link text-danger p-0" type="submit" title="Quitar"><i class="bi bi-trash fs-5"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="card-footer bg-white p-3 d-flex justify-content-between align-items-center">
+        <a href="{% url 'catalogo:lista' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Seguir explorando</a>
+        <form method="post" action="{% url 'agenda:vaciar' %}" onsubmit="return confirm('¿Deseas vaciar la canasta?');">
+          {% csrf_token %}
+          <button class="btn btn-outline-danger btn-sm" type="submit"><i class="bi bi-x-circle me-1"></i>Vaciar canasta</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+      <h5 class="fw-bold mb-3"><i class="bi bi-receipt me-2 text-rs"></i>Estimación de copago</h5>
+
+      <form method="post" action="{% url 'agenda:prevision' %}" class="mb-3">
+        {% csrf_token %}
+        <label class="form-label small fw-semibold" for="prevision">Previsión</label>
+        <div class="input-group">
+          <select name="prevision" id="prevision" class="form-select">
+            {% for valor, etiqueta, pct in previsiones %}
+            <option value="{{ valor }}" {% if valor == prevision %}selected{% endif %}>{{ etiqueta }} ({{ pct }}%)</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-outline-primary" type="submit">Aplicar</button>
+        </div>
+      </form>
+
+      <div class="d-flex justify-content-between text-muted mb-2"><span>Subtotal aranceles ({{ unidades }} un.):</span><span>${{ subtotal }}</span></div>
+      <div class="d-flex justify-content-between text-success mb-2"><span>Bonificación {{ prevision_label }} ({{ pct_cobertura }}%):</span><span>-${{ bonificacion }}</span></div>
+      <div class="d-flex justify-content-between text-muted mb-2"><span>Copago:</span><span>${{ copago }}</span></div>
+      <div class="d-flex justify-content-between text-muted mb-3"><span>Recargo de gestión ({{ pct_recargo }}%):</span><span>${{ recargo }}</span></div>
+      <hr>
+      <div class="d-flex justify-content-between align-items-center mb-1">
+        <span class="fs-5 fw-bold">Total estimado:</span><span class="fs-4 fw-bold">${{ total }}</span>
+      </div>
+      <p class="small text-muted mb-4">Valores referenciales de simulación.</p>
+
+      {% if user.is_authenticated %}
+      <form method="post" action="{% url 'agenda:checkout' %}" class="d-grid">
+        {% csrf_token %}
+        <button class="btn btn-rs py-3 fw-bold" type="submit"><i class="bi bi-calendar-check me-2"></i>Confirmar pre-agendamiento</button>
+      </form>
+      {% else %}
+      <div class="alert alert-warning small mb-3"><i class="bi bi-info-circle me-1"></i>Inicia sesión para confirmar tu solicitud.</div>
+      <a href="{% url 'usuarios:login' %}?next={% url 'agenda:ver' %}" class="btn btn-rs w-100 py-3 fw-bold"><i class="bi bi-box-arrow-in-right me-2"></i>Iniciar sesión</a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+{% endblock %}

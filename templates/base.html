@@ -1,0 +1,87 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ NOMBRE_ORGANIZACION }}{% endblock %}</title>
+    <!-- Bootstrap 5.3 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body class="d-flex flex-column min-vh-100">
+
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-rs sticky-top shadow-sm py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-4" href="{% url 'core:inicio' %}">
+                <i class="bi bi-heart-pulse-fill me-2"></i>{{ NOMBRE_ORGANIZACION }}
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu"
+                    aria-controls="menu" aria-expanded="false" aria-label="Abrir menú">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:inicio' %}">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'catalogo:lista' %}">Prestaciones</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'core:nosotros' %}">Quiénes Somos</a></li>
+                    {% if user.is_staff %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-info" href="#" data-bs-toggle="dropdown">Administración</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'catalogo:gestion' %}">Gestión de prestaciones</a></li>
+                            <li><a class="dropdown-item" href="{% url 'catalogo:crear' %}">Nueva prestación</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin de Django</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="{% url 'agenda:ver' %}" class="btn btn-outline-light position-relative">
+                        <i class="bi bi-basket3"></i> Mi canasta
+                        {% if canasta_cantidad > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ canasta_cantidad }}</span>
+                        {% endif %}
+                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'usuarios:perfil' %}" class="btn btn-light btn-sm"><i class="bi bi-person-circle"></i> {{ user.username }}</a>
+                        <form method="post" action="{% url 'usuarios:logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-light btn-sm">Salir</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'usuarios:login' %}" class="btn btn-outline-light btn-sm">Ingresar</a>
+                        <a href="{% url 'usuarios:registro' %}" class="btn btn-light btn-sm fw-semibold">Registrarse</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenedor de Mensajes Flash de Django -->
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Contenido Principal -->
+    <main class="container my-4 flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <small>&copy; 2026 {{ NOMBRE_ORGANIZACION }} · Proyecto académico – Programación Back End (TI3041)</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

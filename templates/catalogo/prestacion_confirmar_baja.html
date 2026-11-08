@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Confirmar baja | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card border-danger shadow-sm rounded-4 overflow-hidden bg-white">
+      <div class="card-header bg-danger text-white py-3">
+        <h5 class="card-title mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirmar baja de prestación</h5>
+      </div>
+      <div class="card-body p-4 p-md-5 text-center">
+        <i class="bi bi-trash3-fill text-danger display-3 mb-3"></i>
+        <h4 class="fw-bold mb-2">¿Dar de baja esta prestación?</h4>
+        <p class="text-muted mb-4">Se desactivará y dejará de mostrarse en el catálogo público. <strong>No se borra de la base de datos</strong> y podrás reactivarla después.</p>
+        <div class="p-3 bg-light rounded-3 border mb-4 text-start">
+          <ul class="list-unstyled mb-0">
+            <li><strong>Código:</strong> {{ p.codigo }}</li>
+            <li><strong>Nombre:</strong> {{ p.nombre }}</li>
+            <li><strong>Especialidad:</strong> {{ p.especialidad.nombre }}</li>
+            <li><strong>Arancel:</strong> {{ p.arancel_formateado }}</li>
+          </ul>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex justify-content-center gap-2">
+            <a href="{% url 'catalogo:gestion' %}" class="btn btn-outline-secondary px-4">Cancelar</a>
+            <button type="submit" class="btn btn-danger px-4 fw-semibold"><i class="bi bi-trash-fill me-1"></i>Sí, dar de baja</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

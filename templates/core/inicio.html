@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% block title %}Inicio | {{ NOMBRE_ORGANIZACION }} - Centro Médico{% endblock %}
+
+{% block content %}
+<!-- Banner principal -->
+<div class="p-5 mb-5 rounded-4 hero text-white shadow">
+  <div class="row align-items-center">
+    <div class="col-lg-8">
+      <span class="badge bg-light text-dark px-3 py-2 fw-bold mb-3 fs-6"><i class="bi bi-calendar2-heart me-1"></i>Pre-agenda tus exámenes en línea</span>
+      <h1 class="display-5 fw-bold mb-3">Tu salud, con atención oportuna y transparente</h1>
+      <p class="lead opacity-75 mb-4">Explora nuestras prestaciones, arma tu canasta de exámenes y conoce tu copago estimado según tu previsión antes de agendar.</p>
+      <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'catalogo:lista' %}" class="btn btn-light btn-lg fw-bold px-4"><i class="bi bi-search me-2"></i>Ver prestaciones</a>
+        <a href="{% url 'core:nosotros' %}" class="btn btn-outline-light btn-lg px-4"><i class="bi bi-info-circle me-2"></i>Sobre nosotros</a>
+      </div>
+    </div>
+    <div class="col-lg-4 text-center d-none d-lg-block"><i class="bi bi-hospital opacity-75" style="font-size: 8rem;"></i></div>
+  </div>
+</div>
+
+<!-- Beneficios -->
+<div class="row g-3 mb-5 text-center">
+  <div class="col-md-4"><div class="p-4 bg-white rounded-3 shadow-sm border h-100">
+    <i class="bi bi-calculator text-rs display-5 mb-2"></i><h5 class="fw-bold mb-1">Copago estimado</h5>
+    <p class="text-muted small mb-0">Simula tu bonificación Fonasa o Isapre antes de confirmar.</p></div></div>
+  <div class="col-md-4"><div class="p-4 bg-white rounded-3 shadow-sm border h-100">
+    <i class="bi bi-clipboard2-check text-success display-5 mb-2"></i><h5 class="fw-bold mb-1">Requisitos claros</h5>
+    <p class="text-muted small mb-0">Cada examen indica su preparación: ayuno, orden médica y más.</p></div></div>
+  <div class="col-md-4"><div class="p-4 bg-white rounded-3 shadow-sm border h-100">
+    <i class="bi bi-clock-history text-warning display-5 mb-2"></i><h5 class="fw-bold mb-1">Cupos en línea</h5>
+    <p class="text-muted small mb-0">Verás la disponibilidad real de cada prestación.</p></div></div>
+</div>
+
+<!-- Especialidades -->
+{% if especialidades %}
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 fw-bold mb-0"><i class="bi bi-collection-fill text-rs me-2"></i>Especialidades</h2>
+    <a href="{% url 'catalogo:lista' %}" class="text-decoration-none fw-semibold">Ver todas &rarr;</a>
+  </div>
+  <div class="row g-3">
+    {% for esp in especialidades %}
+    <div class="col-6 col-md-3">
+      <a href="{% url 'catalogo:lista' %}?especialidad={{ esp.slug }}" class="text-decoration-none">
+        <div class="card border text-center p-3 h-100 shadow-sm bg-white tarjeta-prestacion">
+          <i class="bi {{ esp.icono }} text-rs fs-2 mb-2"></i>
+          <h6 class="fw-bold text-dark mb-1">{{ esp.nombre }}</h6>
+          <span class="badge bg-light text-secondary border">{{ esp.total }} prestaciones</span>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Prestaciones destacadas -->
+<div class="mb-5">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 fw-bold mb-0"><i class="bi bi-star-fill text-warning me-2"></i>Prestaciones destacadas</h2>
+    <a href="{% url 'catalogo:lista' %}" class="btn btn-outline-dark btn-sm">Ver todo el catálogo</a>
+  </div>
+  <div class="row g-4">
+    {% for p in destacadas %}
+    <div class="col-md-6 col-lg-3">{% include 'catalogo/_tarjeta.html' %}</div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+      <div class="card p-5 bg-white shadow-sm border">
+        <i class="bi bi-box-seam display-3 text-muted mb-3"></i>
+        <h5 class="text-secondary">Pronto tendremos prestaciones destacadas.</h5>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

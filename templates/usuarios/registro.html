@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Crear Cuenta | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5 bg-white">
+      <div class="text-center mb-4">
+        <i class="bi bi-person-plus-fill text-rs display-4"></i>
+        <h2 class="h4 fw-bold mt-2">Crear cuenta de paciente</h2>
+        <p class="text-muted small">Guarda tu información y confirma tus pre-agendamientos</p>
+      </div>
+      <form method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="alert alert-danger py-2 small">{{ form.non_field_errors }}</div>{% endif %}
+        {% for campo in form %}{% include '_campo.html' with campo=campo %}{% endfor %}
+        <div class="d-grid"><button type="submit" class="btn btn-rs py-2 fw-bold"><i class="bi bi-check-circle me-1"></i>Registrarme</button></div>
+      </form>
+      <hr class="my-4">
+      <p class="text-center text-muted small mb-0">¿Ya tienes cuenta? <a href="{% url 'usuarios:login' %}" class="fw-semibold text-decoration-none">Inicia sesión</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

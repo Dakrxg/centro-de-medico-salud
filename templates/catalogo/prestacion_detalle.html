@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}{{ p.nombre }} | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-4">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'core:inicio' %}" class="text-decoration-none text-dark">Inicio</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}" class="text-decoration-none text-dark">Prestaciones</a></li>
+    <li class="breadcrumb-item"><a href="{% url 'catalogo:lista' %}?especialidad={{ p.especialidad.slug }}" class="text-decoration-none text-dark">{{ p.especialidad.nombre }}</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ p.nombre }}</li>
+  </ol>
+</nav>
+
+{% if not p.vigente %}<div class="alert alert-warning">Esta prestación está dada de baja y solo es visible para el personal.</div>{% endif %}
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5 bg-white">
+  <div class="row g-0">
+    <div class="col-md-6 d-flex align-items-center justify-content-center p-4 p-md-5 border-end">
+      {% if p.imagen %}
+        <img src="{{ p.imagen.url }}" alt="{{ p.nombre }}" class="img-fluid rounded-3" style="max-height: 420px; object-fit: contain;">
+      {% else %}
+        <div class="text-center py-5 text-muted"><i class="bi bi-image display-1"></i><p class="mt-2 mb-0 small">Fotografía no disponible</p></div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-6 p-4 p-md-5 d-flex flex-column justify-content-between">
+      <div>
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge bg-rs px-3 py-2 fw-semibold"><i class="bi {{ p.especialidad.icono }} me-1"></i>{{ p.especialidad.nombre }}</span>
+          {% if user.is_staff %}
+          <div class="btn-group btn-group-sm">
+            <a href="{% url 'catalogo:editar' p.slug %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-1"></i>Editar</a>
+            {% if p.vigente %}<a href="{% url 'catalogo:eliminar' p.slug %}" class="btn btn-outline-danger"><i class="bi bi-trash me-1"></i>Dar de baja</a>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <h1 class="h2 fw-bold text-dark mb-2">{{ p.nombre }}</h1>
+        <div class="mb-3 text-muted">
+          <span class="me-3"><i class="bi bi-upc-scan me-1"></i>Código: <strong>{{ p.codigo }}</strong></span>
+          <span><i class="bi bi-clock me-1"></i>Duración: <strong>{{ p.duracion_minutos }} min</strong></span>
+        </div>
+
+        <div class="mb-3">
+          <span class="display-5 fw-bold text-dark">{{ p.arancel_formateado }}</span>
+          <span class="text-muted small ms-2">CLP arancel referencial</span>
+        </div>
+
+        <div class="mb-4">
+          {% include 'catalogo/_estado.html' %}
+          <span class="ms-2 small text-muted">Cupos diarios: <strong>{{ p.cupos_diarios }}</strong></span>
+        </div>
+
+        <h5 class="fw-bold fs-6 text-uppercase text-secondary">Descripción</h5>
+        <p class="text-muted" style="white-space: pre-line;">{{ p.descripcion }}</p>
+
+        {% if p.requisitos %}
+        <div class="alert alert-light border"><strong><i class="bi bi-clipboard2-check me-1"></i>Requisitos / preparación:</strong><br>{{ p.requisitos|linebreaksbr }}</div>
+        {% endif %}
+      </div>
+
+      <div class="border-top pt-4">
+        {% if p.disponible %}
+        <form method="post" action="{% url 'agenda:agregar' p.pk %}" class="row g-2 align-items-end">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'agenda:ver' %}">
+          <div class="col-4"><label class="form-label small" for="cantidad">Cantidad</label>
+            <input type="number" id="cantidad" name="cantidad" value="1" min="1" max="{{ p.cupos_diarios }}" class="form-control"></div>
+          <div class="col-8 d-grid"><button class="btn btn-rs btn-lg fw-bold" type="submit"><i class="bi bi-basket3 me-2"></i>Agregar a la canasta</button></div>
+        </form>
+        {% else %}
+        <button class="btn btn-secondary btn-lg w-100" disabled><i class="bi bi-slash-circle me-2"></i>No disponible por el momento</button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if relacionadas %}
+<div class="mb-5">
+  <h3 class="h4 fw-bold mb-3"><i class="bi bi-grid-3x3-gap-fill text-rs me-2"></i>Más de {{ p.especialidad.nombre }}</h3>
+  <div class="row g-4">
+    {% for rel in relacionadas %}
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm border bg-white">
+        <div class="card-body p-3">
+          <h6 class="fw-bold mb-1">{{ rel.nombre }}</h6>
+          <span class="fw-bold text-dark">{{ rel.arancel_formateado }}</span>
+          <div class="mt-2"><a href="{{ rel.get_absolute_url }}" class="btn btn-outline-dark btn-sm w-100">Ver ficha</a></div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

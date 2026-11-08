@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Comprobante {{ folio }} | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+      <div class="text-center mb-4">
+        <i class="bi bi-check-circle-fill text-success display-1"></i>
+        <h1 class="h2 fw-bold mt-3">Solicitud de pre-agendamiento registrada</h1>
+        <p class="text-muted">Gracias, {{ paciente.first_name|default:paciente.username }}. Este es un comprobante simulado.</p>
+        <span class="badge bg-dark fs-6 px-3 py-2">Folio: {{ folio }}</span>
+      </div>
+
+      <p class="mb-1"><strong>Paciente:</strong> {{ paciente.get_full_name|default:paciente.username }}{% if paciente.perfil %} · RUT {{ paciente.perfil.rut }}{% endif %}</p>
+      <p><strong>Emitido:</strong> {{ fecha|date:"d/m/Y H:i" }} · <strong>Previsión:</strong> {{ prevision_label }}</p>
+
+      <div class="text-start border rounded-3 p-3 p-md-4 mb-4 bg-light">
+        <h5 class="fw-bold mb-3"><i class="bi bi-clipboard2-pulse me-2 text-rs"></i>Prestaciones solicitadas</h5>
+        <ul class="list-group list-group-flush mb-3">
+          {% for l in lineas %}
+          <li class="list-group-item bg-transparent d-flex justify-content-between align-items-center px-0">
+            <div><strong>{{ l.prestacion.nombre }}</strong>
+              <span class="text-muted small d-block">{{ l.prestacion.codigo }} · {{ l.cantidad }} x {{ l.prestacion.arancel_formateado }}</span></div>
+            <span class="fw-bold">${{ l.total }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="d-flex justify-content-between pt-2 border-top"><span>Subtotal aranceles:</span><span>${{ subtotal }}</span></div>
+        <div class="d-flex justify-content-between text-success"><span>Bonificación ({{ pct_cobertura }}%):</span><span>-${{ bonificacion }}</span></div>
+        <div class="d-flex justify-content-between text-muted"><span>Copago:</span><span>${{ copago }}</span></div>
+        <div class="d-flex justify-content-between text-muted"><span>Recargo de gestión ({{ pct_recargo }}%):</span><span>${{ recargo }}</span></div>
+        <div class="d-flex justify-content-between fs-5 fw-bold pt-2 border-top mt-2"><span>Total estimado:</span><span>${{ total }}</span></div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{% url 'catalogo:lista' %}" class="btn btn-rs fw-bold px-4">Seguir explorando</a>
+        <a href="{% url 'usuarios:perfil' %}" class="btn btn-outline-secondary px-4">Ver mi cuenta</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

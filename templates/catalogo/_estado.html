@@ -1,0 +1,7 @@
+{% if p.estado == 'DISPONIBLE' and p.cupos_diarios > 0 %}
+  <span class="badge bg-success-subtle text-success border border-success-subtle">Disponible</span>
+{% elif p.estado == 'SUSPENDIDO' %}
+  <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle">Suspendido</span>
+{% else %}
+  <span class="badge bg-secondary-subtle text-secondary border">Sin cupos</span>
+{% endif %}

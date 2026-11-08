@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block title %}Acceso restringido | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+  <i class="bi bi-shield-lock text-danger" style="font-size:4rem"></i>
+  <h1 class="h3 mt-3">Acceso restringido</h1>
+  <p class="text-muted">Esta sección es solo para personal autorizado (rol staff).</p>
+  <a href="{% url 'catalogo:lista' %}" class="btn btn-rs">Volver a las prestaciones</a>
+</div>
+{% endblock %}

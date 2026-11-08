@@ -1,0 +1,12 @@
+:root { --rs-primario: #0b6e8a; --rs-primario-oscuro: #08546a; --rs-acento: #7fe0d0; }
+body { background-color: #f4f7f9; }
+.bg-rs { background-color: var(--rs-primario) !important; }
+.btn-rs { background-color: var(--rs-primario); border-color: var(--rs-primario); color: #fff; }
+.btn-rs:hover { background-color: var(--rs-primario-oscuro); border-color: var(--rs-primario-oscuro); color: #fff; }
+.text-rs { color: var(--rs-primario) !important; }
+.navbar-brand i { color: var(--rs-acento); }
+.tarjeta-prestacion { transition: transform .15s ease, box-shadow .15s ease; }
+.tarjeta-prestacion:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.12); }
+.imagen-prestacion { height: 180px; object-fit: cover; }
+.imagen-vacia { height: 180px; display: flex; align-items: center; justify-content: center; background: #e9ecef; color: #adb5bd; font-size: 3rem; }
+.hero { background: linear-gradient(135deg, var(--rs-primario) 0%, #0f8aa8 100%); }

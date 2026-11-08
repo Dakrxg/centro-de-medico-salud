@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% block title %}Prestaciones Médicas | {{ NOMBRE_ORGANIZACION }}{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <!-- Filtros laterales (especialidades) -->
+  <div class="col-lg-3">
+    <div class="card border shadow-sm rounded-3 mb-4 bg-white">
+      <div class="card-header bg-rs text-white py-3 fw-bold"><i class="bi bi-funnel-fill me-2"></i>Especialidades</div>
+      <div class="list-group list-group-flush">
+        <a href="{% url 'catalogo:lista' %}{% if query_actual %}?q={{ query_actual|urlencode }}{% endif %}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if not especialidad_sel %}active fw-bold{% endif %}">
+          <span>Todas</span>
+        </a>
+        {% for esp in especialidades %}
+        <a href="{% url 'catalogo:lista' %}?especialidad={{ esp.slug }}{% if query_actual %}&q={{ query_actual|urlencode }}{% endif %}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-center {% if especialidad_sel == esp.slug %}active fw-bold{% endif %}">
+          <span><i class="bi {{ esp.icono }} me-1"></i>{{ esp.nombre }}</span>
+          <span class="badge rounded-pill bg-light text-dark border">{{ esp.total }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% if user.is_staff %}
+    <div class="card bg-dark text-white p-3 rounded-3 shadow-sm mb-4">
+      <h6 class="fw-bold text-info mb-2"><i class="bi bi-shield-lock me-1"></i>Personal autorizado</h6>
+      <p class="small text-secondary mb-3">Puedes agregar nuevas prestaciones o editar las existentes.</p>
+      <a href="{% url 'catalogo:crear' %}" class="btn btn-light btn-sm w-100 fw-bold"><i class="bi bi-plus-circle me-1"></i>Nueva prestación</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Búsqueda, orden y grilla -->
+  <div class="col-lg-9">
+    <div class="card border shadow-sm p-3 mb-4 rounded-3 bg-white">
+      <form method="get" class="row g-2 align-items-center">
+        {% if especialidad_sel %}<input type="hidden" name="especialidad" value="{{ especialidad_sel }}">{% endif %}
+        <div class="col-md-7">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+            <input type="text" name="q" class="form-control border-start-0" placeholder="Buscar por nombre, código o descripción..." value="{{ query_actual }}">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <select name="orden" class="form-select" onchange="this.form.submit()" aria-label="Ordenar por">
+            <option value="nombre_asc" {% if orden_actual == 'nombre_asc' %}selected{% endif %}>Nombre: A-Z</option>
+            <option value="arancel_asc" {% if orden_actual == 'arancel_asc' %}selected{% endif %}>Arancel: menor a mayor</option>
+            <option value="arancel_desc" {% if orden_actual == 'arancel_desc' %}selected{% endif %}>Arancel: mayor a menor</option>
+            <option value="duracion" {% if orden_actual == 'duracion' %}selected{% endif %}>Duración</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-grid"><button type="submit" class="btn btn-rs">Buscar</button></div>
+      </form>
+    </div>
+
+    <p class="text-muted small">{{ total_resultados }} prestación(es) encontrada(s).</p>
+
+    <div class="row g-4 mb-4">
+      {% for p in prestaciones %}
+      <div class="col-md-6 col-xl-4">{% include 'catalogo/_tarjeta.html' %}</div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <div class="p-4 bg-white rounded-3 border shadow-sm">
+          <i class="bi bi-search display-4 text-muted mb-2"></i>
+          <h5 class="text-secondary">No se encontraron prestaciones con los filtros seleccionados.</h5>
+          <a href="{% url 'catalogo:lista' %}" class="btn btn-outline-dark btn-sm mt-2">Ver todas las prestaciones</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Paginación (conserva búsqueda, filtro y orden) -->
+    {% if prestaciones.has_other_pages %}
+    <nav aria-label="Navegación de páginas">
+      <ul class="pagination justify-content-center flex-wrap">
+        {% if prestaciones.has_previous %}
+        <li class="page-item"><a class="page-link text-dark" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ prestaciones.previous_page_number }}">Anterior</a></li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Anterior</span></li>
+        {% endif %}
+
+        {% for i in prestaciones.paginator.page_range %}
+          {% if prestaciones.number == i %}
+          <li class="page-item active"><span class="page-link bg-rs border-0">{{ i }}</span></li>
+          {% else %}
+          <li class="page-item"><a class="page-link text-dark" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ i }}">{{ i }}</a></li>
+          {% endif %}
+        {% endfor %}
+
+        {% if prestaciones.has_next %}
+        <li class="page-item"><a class="page-link text-dark" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ prestaciones.next_page_number }}">Siguiente</a></li>
+        {% else %}
+        <li class="page-item disabled"><span class="page-link">Siguiente</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
