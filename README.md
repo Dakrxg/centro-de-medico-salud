@@ -65,3 +65,12 @@ python manage.py poblar_datos
 
 # 7. Levantar el servidor
 python manage.py runserver
+
+## Credenciales de prueba
+
+En python manage.py poblar_datos
+
+Usuario	/ Contraseña	/Rol
+admin	/Admin12345!	/Superusuario (staff): accede al Django Admin y a la gestión CRUD
+recepcion/	Recepcion12345!/	Staff: accede a la gestión CRUD del sitio
+paciente/	Paciente12345!/	Usuario estándar (previsión Fonasa)
