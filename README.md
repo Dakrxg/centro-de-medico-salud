@@ -10,7 +10,7 @@
 
 ## Bitácora de Prompts de IA 
 
-Utilice a Gemini como apoyo técnico durante el desarrollo del proyecto, justificando críticamente la adaptación del código generado a nuestras reglas de negocio
+La herramienta que usamos a Gemini como apoyo técnico durante el desarrollo del proyecto, justificando críticamente la adaptación del código generado a nuestras reglas de negocio
 
 ## Caso 1: Arquitectura y Sesiones HTTP (request.session)
 
@@ -41,3 +41,27 @@ Prompt utilizado: Tengo vistas basadas en funciones en Django que realizan las o
 Respuesta técnica de la IA: La IA proporcionó un ejemplo anidando dos decoradores sobre la función de la vista: `@login_required(login_url='login')` para exigir que la sesión esté iniciada, y `@user_passes_test(lambda u: u.is_staff)` para validar el atributo del rol.
 
 Adaptación aplicada: Integramos ambos decoradores en las vistas de modificación y baja lógica en `apps/catalogo/views.py`. Sin embargo, adaptamos el código para que, en caso de que un paciente (usuario autenticado pero sin rol staff) intente acceder al CRUD, la redirección de `@user_passes_test` no lo envíe al login de nuevo, sino que lo redirija a nuestra vista dedicada `sin_permiso` (ubicada en `apps/core/views.py`), mejorando así la seguridad y la experiencia de usuario de la plataforma.
+
+Paso a paso(Instalacion)
+
+# 1. Clonar el repositorio
+git clone https://github.com/Dakrxg/centro-de-medico-salud.git
+
+# 2. Crear y activar el entorno virtual
+python -m venv .venv
+#   Windows:      .venv\Scripts\activate
+
+# 3. Instalar dependencias
+pip install -r requirements.txt
+
+# 4. Crear el archivo de variables de entorno
+#   Windows:      copy .env.example .env
+
+# 5. Aplicar migraciones (ya vienen incluidas en el repositorio)
+python manage.py migrate
+
+# 6. Cargar datos de ejemplo: 4 especialidades, 8 prestaciones y 3 usuarios
+python manage.py poblar_datos
+
+# 7. Levantar el servidor
+python manage.py runserver
