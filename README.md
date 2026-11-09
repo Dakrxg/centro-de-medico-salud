@@ -66,6 +66,10 @@ python manage.py poblar_datos
 # 7. Levantar el servidor
 python manage.py runserver
 
+Sitio: http://127.0.0.1:8000/ 
+Catálogo: http://127.0.0.1:8000/catalogo/ 
+Admin de Django: http://127.0.0.1:8000/admin/
+
 ## Credenciales de prueba
 
 En python manage.py poblar_datos
